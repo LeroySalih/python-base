@@ -1,11 +1,23 @@
 from subprocess import run
 
 import os,sys,inspect
+import requests 
+import json 
+
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir) 
 
 from starter import *
+
+
+msg = f"Testing Pod {os.environ['POD_ID']} for {os.environ['APP_EMAIL']}"
+print(msg)
+
+
+
+
+
 
 class TestAssertionError(Exception):
     def __init__(self, expected, actual):
@@ -19,6 +31,11 @@ class TestResult:
         self.status = status
         self.expected = expected 
         self.actual = actual 
+
+    
+    def toDict (self):
+        return {"name" : self.name, "status": self.status, "expected": self.expected, "actual": self.actual}
+
 
 
 class TestEngine:
@@ -41,7 +58,7 @@ class TestEngine:
     def runTest(self, fn):
         try:
             fn()
-            self.results.append(TestResult( fn.__name__, "passed", None, None))
+            self.results.append(TestResult( fn.__name__, "passed", None, None).toDict())
 
         except TestAssertionError as err:
             print(type(err), err)
@@ -49,7 +66,7 @@ class TestEngine:
                 fn.__name__, 
                 "failed", 
                 err.expected, 
-                err.actual))
+                err.actual).toDict())
             
 
     def run(self):
@@ -107,14 +124,28 @@ def createTestSuite ():
 
     results = engine.run()
 
+    #Posting Results to Server
+    params = {
+        "email": os.environ["APP_EMAIL"],
+        "podId": os.environ["POD_ID"],
+        "results" : json.dumps(results)
+    }
+
+    result = requests.post(
+        "https://3000-ab155182-05d4-4bf5-b47e-2b757b153877.ws-eu01.gitpod.io/api/test-result",
+        # "https://python-code-test-server.herokuapp.com/api/test-result",
+        data=params
+        )
+    print(result)
+
     for result in results:
         
-        if (result.status == "passed"):
+        if (result["status"] == "passed"):
             textGreen()
-            print("{0}......Passed".format(result.name))
+            print("{0}......Passed".format(result["name"]))
         else:
             textRed()
-            print ("{0}.....Failed".format(result.name))
+            print ("{0}.....Failed".format(result["name"]))
             print("Expected")
             print("========")
             print(result.expected)
