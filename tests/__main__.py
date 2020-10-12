@@ -11,8 +11,10 @@ sys.path.insert(0,parentdir)
 from starter import *
 
 
+print("")
 msg = f"Testing Pod {os.environ['POD_ID']} for {os.environ['APP_EMAIL']}"
 print(msg)
+print("")
 
 
 
@@ -82,7 +84,7 @@ class StarterTestEngine (TestEngine):
     def test_output_is_correct(self): 
         user_input="Hello World"    
         result = run(["python", "starter.py"], input=b"Hello World\n", capture_output=True)
-        print(result)
+        
         expected = b'Enter a word.The first letter is H\nThe last letter is d\n'
         self.assertEqual(expected,  result.stdout, "\nExpected:\n{0}\nReceived:\n{1}".format(expected, result.stdout))
 
@@ -111,13 +113,13 @@ class StarterTestEngine (TestEngine):
 """
 
 def textReset():
-    print(u"\u001b[0m")
+    print(u"\u001b[0m", end="")
 
 def textGreen():
-    print(u"\u001b[32m")
+    print(u"\u001b[32m", end="")
 
 def textRed():
-    print(u"\u001b[31m")
+    print(u"\u001b[31m", end="")
 
 def createTestSuite ():
     engine = StarterTestEngine()
@@ -136,15 +138,18 @@ def createTestSuite ():
         # "https://python-code-test-server.herokuapp.com/api/test-result",
         data=params
         )
-    print(result)
-
+    
     for result in results:
         
         if (result["status"] == "passed"):
             textGreen()
+            print(u'\u2714', end=" ")
+            textReset()
             print("{0}......Passed".format(result["name"]))
         else:
             textRed()
+            print(u'\u2718', end=" ")
+            textReset()
             print ("{0}.....Failed".format(result["name"]))
             print("Expected")
             print("========")
@@ -155,6 +160,8 @@ def createTestSuite ():
             print(result.actual)
         
         textReset()
+    print("")
+    print("")
     
 
 if __name__ == "__main__":
