@@ -4,6 +4,8 @@ import os,sys,inspect
 import requests 
 import json 
 
+from testengine import *
+
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir) 
@@ -11,75 +13,15 @@ sys.path.insert(0,parentdir)
 from starter import *
 
 
-print("")
-msg = f"Testing Pod {os.environ['POD_ID']} for {os.environ['APP_EMAIL']}"
-print(msg)
-print("")
-
-
-
-
-
-
-class TestAssertionError(Exception):
-    def __init__(self, expected, actual):
-        self.expected = expected
-        self.actual = actual
-
-class TestResult:
-
-    def __init__(self, name, status, expected, actual):
-        self.name= name
-        self.status = status
-        self.expected = str(expected) 
-        self.actual = str(actual) 
-
-    
-    def toDict (self):
-        return {"name" : self.name, "status": self.status, "expected": self.expected, "actual": self.actual}
-
-
-
-class TestEngine:
-    
-    def __init__(self):
-        self.success = 0
-        self.fails = 0
-        self.results = []
-    
-    def setUp(self):
-        print("\n\nRunning Tests.\n")
-
-    def tearDown(self):
-        print("Done.")
-
-    def assertEqual(self, expected, actual, msg):
-        if expected != actual:
-            raise TestAssertionError(expected, actual)
-
-    def runTest(self, fn):
-        try:
-            fn()
-            self.results.append(TestResult( fn.__name__, "passed", None, None).toDict())
-
-        except TestAssertionError as err:
-            #print(type(err), err)
-            self.results.append(TestResult(
-                fn.__name__, 
-                "failed", 
-                err.expected, 
-                err.actual).toDict())
-            
-
-    def run(self):
-        pass
-        
+print("*" * 20)
+print(f"Testing Pod {os.environ['POD_ID']} for {os.environ['APP_EMAIL']}")
+print("*" * 20)
 
     
 class StarterTestEngine (TestEngine):
 
-    def __init__(self):
-        super().__init__();
+    def __init__(self, label):
+        super().__init__(label);
 
     def test_output_is_correct(self): 
         user_input="Hello World"    
@@ -93,6 +35,7 @@ class StarterTestEngine (TestEngine):
         self.assertEqual( 9, mySum(4, 5), "\nExpected: 9.\nReceived:{0}".format(result))
 
     def run(self):
+
         self.runTest(self.test_output_is_correct)
         self.runTest(self.test_def_is_correct)
 
@@ -121,9 +64,22 @@ def textGreen():
 def textRed():
     print(u"\u001b[31m", end="")
 
-def createTestSuite ():
-    engine = StarterTestEngine()
+def agg(results):
+    success = 0
+    fails = 0
 
+    for result in results:
+        
+        if result['status'] == 'passed':
+            success = success + 1
+        else:
+            fails = fails + 1
+
+    
+    return success, fails
+
+def createTestSuite (engine):
+    
     results = engine.run()
 
     #Posting Results to Server
@@ -138,7 +94,9 @@ def createTestSuite ():
         # "https://python-code-test-server.herokuapp.com/api/test-result",
         data=params
         )
+
     
+    print(f"Running tests for {engine.label}")
     for result in results:
         print("")
         if (result["status"] == "passed"):
@@ -151,18 +109,29 @@ def createTestSuite ():
             print(u'\u2718', end=" ")
             textReset()
             print ("{0}.....Failed".format(result["name"]))
-            print("Expected")
-            print("========")
-            print(result['expected'])
+            print("\tExpected")
+            print("\t========")
+            print("\t", result['expected'])
+            print("")
         
-            print("Actual")
-            print("========")
-            print(result['actual'])
+            print("\tActual")
+            print("\t========")
+            print("\t", result['actual'])
         
         textReset()
+
+    success, fail = agg(results)
+
+    progress = ((2 / (float(success) + float(fail))) ) * 100.0
+
+    print(f"{engine.label} is {progress} % complete.")
     print("")
     print("")
-    
 
 if __name__ == "__main__":
-    createTestSuite()
+
+    engine = StarterTestEngine("Starter")
+    createTestSuite(engine)
+
+    engine = StarterTestEngine("Step1")
+    createTestSuite(engine)
