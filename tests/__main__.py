@@ -31,8 +31,8 @@ class TestResult:
     def __init__(self, name, status, expected, actual):
         self.name= name
         self.status = status
-        self.expected = expected 
-        self.actual = actual 
+        self.expected = str(expected) 
+        self.actual = str(actual) 
 
     
     def toDict (self):
@@ -63,7 +63,7 @@ class TestEngine:
             self.results.append(TestResult( fn.__name__, "passed", None, None).toDict())
 
         except TestAssertionError as err:
-            print(type(err), err)
+            #print(type(err), err)
             self.results.append(TestResult(
                 fn.__name__, 
                 "failed", 
@@ -140,7 +140,7 @@ def createTestSuite ():
         )
     
     for result in results:
-        
+        print("")
         if (result["status"] == "passed"):
             textGreen()
             print(u'\u2714', end=" ")
@@ -153,11 +153,11 @@ def createTestSuite ():
             print ("{0}.....Failed".format(result["name"]))
             print("Expected")
             print("========")
-            print(result.expected)
+            print(result['expected'])
         
             print("Actual")
             print("========")
-            print(result.actual)
+            print(result['actual'])
         
         textReset()
     print("")

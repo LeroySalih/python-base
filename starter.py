@@ -7,4 +7,4 @@ if __name__ == "__main__":
     # the user.
     word = input("Enter a word.")
     print("The first letter is {0}".format(word[0]))
-    print("The last letter is {0}".format(word[-1:]))
+    print("The last letter is {0}".format(word[-2:]))
