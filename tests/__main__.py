@@ -101,10 +101,12 @@ def createTestSuite (engine):
     print("")
     print("")
 
+    return results, success, fail, progress  
+
 if __name__ == "__main__":
 
     engine = MainTestEngine("main.py")
-    createTestSuite(engine)
+    results, sucecss, fail, progress = createTestSuite(engine)
 
     #engine = MainTestEngine("Step1")
     #createTestSuite(engine)
