@@ -1,3 +1,5 @@
+import main
+
 class TestAssertionError(Exception):
     def __init__(self, expected, actual):
         self.expected = expected
@@ -34,9 +36,15 @@ class TestEngine:
         if expected != actual:
             raise TestAssertionError(expected, actual)
 
+    def getTests (self):
+        return []
+
     def runTest(self, fn):
         try:
+            #run the test
             fn()
+
+            #test didn't throw an exception, so OK.
             self.results.append(TestResult( fn.__name__, "passed", None, None).toDict())
 
         except TestAssertionError as err:
@@ -46,7 +54,23 @@ class TestEngine:
                 "failed", 
                 err.expected, 
                 err.actual).toDict())
-            
+
+        except NameError as err:
+            self.results.append(TestResult(
+                fn.__name__, 
+                "failed", 
+                "Def not found", 
+                "").toDict())
+
+    # Run all tests rather than halting at the first fail.
     def run(self):
-        pass
-        
+        for test in self.getTests():
+            self.runTest(test)
+
+        return self.results
+
+
+    def assertDefExists (self, name):
+        defs = dir(main)
+        if not(name in defs):
+            raise TestAssertionError(f"Expected to find def {name}", f"{name} not found.-")
