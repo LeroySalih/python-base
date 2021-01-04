@@ -1,10 +1,14 @@
 import requests
 import json
-
+import os
 if __name__ =="__main__":
-  print("Getting Files from DB.")
+  challengeId = os.environ.get('CHALLENGE_ID')
+  print(f"Getting Files for Challenge ID {challengeId} from DB.")
+  print("")
 
-  r = requests.get('https://cs-revise.leroysalih.vercel.app/api/challenge/1', data = {'main':'#Written from gitpod'})
+  
+
+  r = requests.get(f"https://cs-revise.leroysalih.vercel.app/api/challenge/{challengeId}")
   obj = json.loads(r.text)
   
 

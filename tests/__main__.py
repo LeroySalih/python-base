@@ -100,7 +100,7 @@ def createTestSuite (engine):
 
 if __name__ == "__main__":
 
-    engine = MainTestEngine("Testing main.py")
+    engine = MainTestEngine("main.py")
     createTestSuite(engine)
 
     #engine = MainTestEngine("Step1")
