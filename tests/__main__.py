@@ -10,6 +10,9 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir) 
 
+
+from colour import red, green
+
 #import the main file
 from main import *
 from maintestengine import *
@@ -72,12 +75,12 @@ def createTestSuite (engine):
             textGreen()
             print(u'\u2714', end=" ")
             textReset()
-            print("{0}......Passed".format(result["name"]))
+            print("{0}......{1}".format(result["name"], green("Passed")))
         else:
             textRed()
             print(u'\u2718', end=" ")
             textReset()
-            print ("{0}.....Failed".format(result["name"]))
+            print ("{0}.....{1}".format(result["name"], red("Failed")))
             print("\tExpected")
             print("\t========")
             print("\t", result['expected'])
