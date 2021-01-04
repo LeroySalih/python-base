@@ -12,8 +12,12 @@ if __name__ =="__main__":
   f.write(obj['main'])
   f.close()
 
-  f = open("./test.py", "w")
+  f = open("./tests/maintestengine.py", "w")
   f.write(obj['test'])
+  f.close()
+
+  f = open("./README.md", "w")
+  f.write(obj['README'])
   f.close()
 
   print("Files generated")
