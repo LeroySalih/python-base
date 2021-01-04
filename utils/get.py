@@ -39,4 +39,8 @@ if __name__ =="__main__":
   f.write(obj['README'])
   f.close()
 
+  f = open("./env", "w")
+  f.write([id, title, email])
+  f.close()
+
   print(green("Files generated"))

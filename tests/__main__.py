@@ -105,8 +105,34 @@ def createTestSuite (engine):
 
 if __name__ == "__main__":
 
+    id = os.environ.get('CHALLENGE_ID')
+    title = os.environ.get("CHALLENGE_TITLE")
+    email = os.environ.get("EMAIL")
+
     engine = MainTestEngine("main.py")
-    results, sucecss, fail, progress = createTestSuite(engine)
+    results, success, fail, progress = createTestSuite(engine)
+
+    print("Posting Results to server.")
+
+
+    mainFile = open("main.py", "r")
+    mainText = mainFile.read()
+
+    data = {
+        "id": id,
+        "title" : title, 
+        "email" : email,
+        "results" : json.dumps(results), 
+        "successes" : success,
+        "fails" : fail,
+        "progress" : progress,
+        "main" : mainText
+    }
+
+    result = requests.post(f"https://cs-revise.leroysalih.vercel.app/api/answer/{id}", data=data)
+
+    print(result.status_code)
+    print(result.text)
 
     #engine = MainTestEngine("Step1")
     #createTestSuite(engine)
